@@ -26,6 +26,6 @@
       "@/*": ["src/*"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", ".eslintrc.cjs", "vite.config.ts", "commitlint.config.ts", "./components.d.ts", "commitlint.config.ts"],
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", ".eslintrc.cjs", "vite.config.ts", "./components.d.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
