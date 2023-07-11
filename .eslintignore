@@ -1,0 +1,10 @@
+node_modules
+dist/
+test
+build/
+.vscode
+.github
+.husky
+
+src/vite-env.d.ts
+src/assets/svg
