@@ -18,7 +18,8 @@ export const createGraphical = (canvasEl: Canvas, point: Point): void => {
   const styleStore = useStyleToolbar()
   switch (canvasStore.selectedGraphics) {
     case 'rect':
-      canvasExample.on('mouse:up', createRect)
+      // canvasExample.on('mouse:up', createRect)
+      createRect()
       break
     case 'circle':
       createCircle()
@@ -48,23 +49,15 @@ export const createGraphical = (canvasEl: Canvas, point: Point): void => {
 }
 
 // 创建矩形
-const createRect = (e: IEvent<Event>): void => {
-  const pointer = e.absolutePointer
-  if (JSON.stringify(downPoint) === JSON.stringify(pointer) || (pointer == null)) {
-    return
-  }
-
-  const top = Math.min(downPoint.y, pointer.y)
-  const left = Math.min(downPoint.x, pointer.x)
-  const width = Math.abs(downPoint.x - pointer.x)
-  const height = Math.abs(downPoint.y - pointer.y)
+let rect: fabric.Rect
+const createRect = (): void => {
   const styleStore = useStyleToolbar()
-  const rect = new fabric.Rect({
+  rect = new fabric.Rect({
     name: GenNonDuplicateID('rect'),
-    top,
-    left,
-    width,
-    height,
+    top: downPoint.y,
+    left: downPoint.x,
+    width: 0,
+    height: 0,
     fill: colorStye(styleStore.fill),
     strokeWidth: strokeWidthStyle(styleStore.strokeWidth),
     stroke: colorStye(styleStore.stroke),
@@ -75,11 +68,40 @@ const createRect = (e: IEvent<Event>): void => {
     strokeDashArray: strokeDashArrayStyle(styleStore.strokeDashArray)
   })
   canvasExample.add(rect)
-  canvasExample.renderAll()
-  addToHistory(canvasExample)
-  updateCanvas(canvasExample)
-  canvasExample.off('mouse:up', createRect)
+  canvasExample.on('mouse:move', moveReact)
+  canvasExample.on('mouse:up', createRectUp)
+}
+
+const moveReact = (e: IEvent<Event>): void => {
+  const pointer = e.absolutePointer
+  if (pointer != null) {
+    const top = Math.min(downPoint.y, pointer.y)
+    const left = Math.min(downPoint.x, pointer.x)
+    let width = Math.abs(downPoint.x - pointer.x)
+    let height = Math.abs(downPoint.y - pointer.y)
+    const canvasStore = useCanvas()
+    if (canvasStore.KeyboardKey === 'Shift') {
+      const minNumber = Math.min(width, height)
+      width = minNumber
+      height = minNumber
+    }
+    rect.set('top', top)
+    rect.set('left', left)
+    rect.set('width', width)
+    rect.set('height', height)
+    canvasExample.requestRenderAll()
+  }
+}
+const createRectUp = (e: IEvent<Event>): void => {
   resetSelection()
+  canvasExample.off('mouse:move', moveReact)
+  canvasExample.off('mouse:up', createRectUp)
+  if (JSON.stringify(downPoint) === JSON.stringify(e.absolutePointer)) {
+    canvasExample.remove(circle)
+    return
+  }
+  updateCanvas(canvasExample)
+  addToHistory(canvasExample)
 }
 
 // 创建圆形
@@ -131,13 +153,12 @@ const moveCircle = (e: IEvent<Event>): void => {
 
 const createCircleUp = (e: IEvent<Event>): void => {
   resetSelection()
+  canvasExample.off('mouse:move', moveCircle)
+  canvasExample.off('mouse:up', createCircleUp)
   if (JSON.stringify(downPoint) === JSON.stringify(e.absolutePointer)) {
     canvasExample.remove(circle)
     return
   }
-
-  canvasExample.off('mouse:move', moveCircle)
-  canvasExample.off('mouse:up', createCircleUp)
 
   updateCanvas(canvasExample)
   addToHistory(canvasExample)
@@ -180,13 +201,12 @@ const moveLine = (e: IEvent<Event>): void => {
 
 const createLineUp = (e: IEvent<Event>): void => {
   resetSelection()
+  canvasExample.off('mouse:move', moveLine)
+  canvasExample.off('mouse:up', createLineUp)
   if (JSON.stringify(downPoint) === JSON.stringify(e.absolutePointer)) {
     canvasExample.remove(line)
     return
   }
-
-  canvasExample.off('mouse:move', moveLine)
-  canvasExample.off('mouse:up', createLineUp)
 
   updateCanvas(canvasExample)
   addToHistory(canvasExample)
@@ -201,16 +221,34 @@ const createRhombus = (): void => {
 }
 
 const moveRhombus = (e: IEvent<Event>): void => {
+  const canvasStore = useCanvas()
   const pointer = e.absolutePointer
   if (pointer != null) {
-    const x1 = (pointer.x - downPoint.x) / 2 + downPoint.x
-    const y1 = downPoint.y
-    const x2 = pointer.x
-    const y2 = (pointer.y - downPoint.y) / 2 + downPoint.y
-    const x3 = x1
-    const y3 = pointer.y
-    const x4 = downPoint.x
-    const y4 = y2
+    let x1 = (pointer.x - downPoint.x) / 2 + downPoint.x
+    let y1 = downPoint.y
+    let x2 = pointer.x
+    let y2 = (pointer.y - downPoint.y) / 2 + downPoint.y
+    let x3 = x1
+    let y3 = pointer.y
+    let x4 = downPoint.x
+    let y4 = y2
+    let left = Math.min(downPoint.x, pointer.x)
+    let top = Math.min(downPoint.y, pointer.y)
+    if (canvasStore.KeyboardKey === 'Shift') {
+      const minNumber = Math.min(Math.abs(pointer.x - downPoint.x), Math.abs(pointer.y - downPoint.y))
+      x1 = minNumber / 2 + downPoint.x
+      y1 = downPoint.y
+      x2 = downPoint.x + minNumber
+      y2 = minNumber / 2 + downPoint.y
+      x3 = x1
+      y3 = downPoint.y + minNumber
+      x4 = downPoint.x
+      y4 = y2
+      const offsetX = pointer.x - downPoint.x > 0 ? minNumber : -minNumber
+      const offsetY = pointer.y - downPoint.y > 0 ? minNumber : -minNumber
+      left = Math.min(downPoint.x, downPoint.x + offsetX)
+      top = Math.min(downPoint.y, downPoint.y + offsetY)
+    }
     const points = [
       { x: x1, y: y1 },
       { x: x2, y: y2 },
@@ -222,8 +260,8 @@ const moveRhombus = (e: IEvent<Event>): void => {
     if (rhombus != null) canvasExample.remove(rhombus)
     rhombus = new fabric.Polygon(points, {
       name: GenNonDuplicateID('rhombus'),
-      left: Math.min(downPoint.x, pointer.x),
-      top: Math.min(downPoint.y, pointer.y),
+      left,
+      top,
       fill: colorStye(styleStore.fill),
       strokeWidth: strokeWidthStyle(styleStore.strokeWidth),
       stroke: colorStye(styleStore.stroke),
@@ -239,15 +277,12 @@ const moveRhombus = (e: IEvent<Event>): void => {
 
 const createRhombusUp = (e: IEvent<Event>): void => {
   resetSelection()
-  if ((rhombus != null) && JSON.stringify(downPoint) === JSON.stringify(e.absolutePointer)) {
-    canvasExample.remove(rhombus)
-    return
-  }
-  rhombus = null
-
   canvasExample.off('mouse:move', moveRhombus)
   canvasExample.off('mouse:up', createRhombusUp)
-
+  if ((rhombus != null) && JSON.stringify(downPoint) === JSON.stringify(e.absolutePointer)) {
+    canvasExample.remove(rhombus)
+  }
+  rhombus = null
   updateCanvas(canvasExample)
   addToHistory(canvasExample)
 }
@@ -304,15 +339,13 @@ const drawArrowBase = (fromX: number, fromY: number, toX: number, toY: number): 
 }
 const createArrowsUp = (e: IEvent<Event>): void => {
   resetSelection()
+  canvasExample.off('mouse:move', moveArrows)
+  canvasExample.off('mouse:up', createArrowsUp)
   if ((arrows != null) && JSON.stringify(downPoint) === JSON.stringify(e.absolutePointer)) {
     canvasExample.remove(arrows)
     return
   }
   arrows = null
-
-  canvasExample.off('mouse:move', moveArrows)
-  canvasExample.off('mouse:up', createArrowsUp)
-
   updateCanvas(canvasExample)
   addToHistory(canvasExample)
 }
@@ -396,18 +429,17 @@ const moveImage = (e: IEvent<Event>): void => {
   }
 }
 const imageUp = (e: IEvent<Event>): void => {
+  const uploadFile = useUploadFile()
+  const canvasStore = useCanvas()
+  uploadFile.imageUrl = ''
+  canvasStore.selectedGraphics = 'select'
+  canvasExample.off('mouse:move', moveImage)
+  canvasExample.off('mouse:up', imageUp)
   if ((arrows != null) && JSON.stringify(downPoint) === JSON.stringify(e.absolutePointer)) {
     canvasExample.remove(image as fabric.Image)
     return
   }
   image = null
-  const uploadFile = useUploadFile()
-  const canvasStore = useCanvas()
-  uploadFile.imageUrl = ''
-  canvasStore.selectedGraphics = 'select'
-
-  canvasExample.off('mouse:move', moveImage)
-  canvasExample.off('mouse:up', imageUp)
   addToHistory(canvasExample)
   updateCanvas(canvasExample)
 }

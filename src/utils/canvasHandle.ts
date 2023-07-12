@@ -44,7 +44,34 @@ export const canvasInit = (canvas: HTMLCanvasElement, content: HTMLDivElement): 
   // 图形移动
   canvasExample.on('object:modified', () => {
     addToHistory(canvasExample)
+    updateCanvas(canvasExample)
   })
+  // 图形缩放
+  // canvasExample.on('object:scaling', (val) => {
+  //   console.log(val)
+  //   const selectedObject: any = val.target
+  //   if (selectedObject != null && canvasStore.KeyboardKey === 'Shift') {
+  //     if (selectedObject.type === 'rect') {
+  //       const poiner = val.pointer
+  //       const dwPoiner = selectedObject.aCoords.tl
+  //       const scale = Math.abs(poiner.x - dwPoiner.x) / selectedObject.width
+  //       console.log(scale, selectedObject.scaleX)
+  //       // console.log('123', selectedObject)
+  //       // const minNumber = Math.min(selectedObject.width as number, selectedObject.height as number)
+  //       // const scale = Math.min(selectedObject.scaleX, selectedObject.scaleY)
+  //       // selectedObject.set({ width: minNumber, height: minNumber, scaleX: scale, scaleY: scale })
+  //       canvasExample.requestRenderAll()
+  //     }
+  //     if (selectedObject.type === 'polygon') {
+  //       console.log(selectedObject)
+  //     }
+  //     if (selectedObject.type === 'ellipse') {
+  //       const minNumber = Math.min(selectedObject.rx as number, selectedObject.ry as number)
+  //       selectedObject.set('rx', minNumber)
+  //       selectedObject.set('ry', minNumber)
+  //     }
+  //   }
+  // })
 }
 
 // 更新背景颜色

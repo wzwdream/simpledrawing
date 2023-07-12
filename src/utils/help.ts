@@ -18,7 +18,7 @@ export const updateSelected = (canvasExample: Canvas): void => {
     canvasExample.skipTargetFind = false // 允许选中
   } else {
     canvasExample.selectionColor = 'transparent'
-    canvasExample.selectionBorderColor = canvasStore.selectedGraphics === 'rect' ? 'rgba(0, 0, 0, 0.2)' : 'transparent'
+    canvasExample.selectionBorderColor = 'transparent'
     canvasExample.skipTargetFind = true // 禁止选中
   }
   updateCanvas(canvasExample)
