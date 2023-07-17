@@ -55,13 +55,12 @@ const changeSelected = (key: string): void => {
 
 // control组合事件
 const controlEvent = (e: KeyboardEvent): void => {
+  e.preventDefault()
   if (e.key === 'a') {
-    e.preventDefault()
     selectAll()
   }
   if (e.key === 'd') copyGraphics()
   if (e.key === '-' || e.key === '=') {
-    e.preventDefault()
     scalingCanvas(e.key === '-' ? 'reduce' : 'enlarge')
   }
   if (e.key === 't' || e.key === 'b' || e.key === 'u' || e.key === 'p') {
@@ -69,7 +68,6 @@ const controlEvent = (e: KeyboardEvent): void => {
     movementLayer(type)
   }
   if (e.key === 'p' || e.key === 'z') {
-    e.preventDefault()
     revocationOrrecovery(e.key === 'p' ? 'recovery' : 'revocation')
   }
 }
